@@ -14,7 +14,10 @@ const app = express();
 
 // middleware
 app.use(express.json());
-app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: [ENV.CLIENT_URL, "http://localhost:5174"],
+  credentials: true
+}));
 app.use(clerkMiddleware());
 
 app.use("/api/inngest", serve({ client: inngest, functions }));

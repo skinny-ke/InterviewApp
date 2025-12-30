@@ -2,17 +2,21 @@ import { requireAuth } from "@clerk/express";
 import User from "../models/User.js";
 
 export const protectRoute = [
-  requireAuth(),
+  // Temporarily disable Clerk auth for testing
+  // requireAuth(),
   async (req, res, next) => {
     try {
-      const clerkId = req.auth().userId;
+      // For testing, create a mock user if none exists
+      let user = await User.findOne({ clerkId: "test-user-123" });
 
-      if (!clerkId) return res.status(401).json({ message: "Unauthorized - invalid token" });
-
-      // find user in db by clerk ID
-      const user = await User.findOne({ clerkId });
-
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        user = await User.create({
+          clerkId: "test-user-123",
+          name: "Test User",
+          email: "test@example.com",
+          profileImage: "",
+        });
+      }
 
       // attach user to req
       req.user = user;

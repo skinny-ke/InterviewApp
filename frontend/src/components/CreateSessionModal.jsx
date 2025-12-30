@@ -32,8 +32,8 @@ function CreateSessionModal({
               onChange={(e) => {
                 const selectedProblem = problems.find((p) => p.title === e.target.value);
                 setRoomConfig({
-                  difficulty: selectedProblem.difficulty,
                   problem: e.target.value,
+                  difficulty: selectedProblem ? selectedProblem.difficulty : "",
                 });
               }}
             >

@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json());
 console.log("Backend CLIENT_URL:", ENV.CLIENT_URL);
 app.use(cors({
-  origin: [ENV.CLIENT_URL, "http://localhost:5174"],
+  origin: [ENV.CLIENT_URL, "http://localhost:5174", "https://interview-msaqs4aap-skinny-kes-projects.vercel.app"],
   credentials: true
 }));
 app.use(clerkMiddleware());

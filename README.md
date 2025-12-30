@@ -46,6 +46,8 @@ CLERK_SECRET_KEY=your_clerk_secret_key
 CLIENT_URL=http://localhost:5173
 ```
 
+For production (e.g., Render), set `CLIENT_URL` to your frontend's production URL (e.g., `https://your-frontend.vercel.app`).
+
 ### Frontend (`/frontend`)
 
 ```bash
@@ -55,6 +57,8 @@ VITE_API_URL=http://localhost:3000/api
 
 VITE_STREAM_API_KEY=your_stream_api_key
 ```
+
+For production (e.g., Vercel), set `VITE_API_URL` to your backend's production URL + `/api` (e.g., `https://your-backend.onrender.com/api`).
 
 ---
 

@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}</content>
+</xai:function_call name="write_to_file">
+<parameter name="path">frontend/vercel.json

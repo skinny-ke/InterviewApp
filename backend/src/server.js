@@ -33,14 +33,15 @@ app.get("/health", (req, res) => {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+// Frontend is on Vercel, backend only serves API
+// if (ENV.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/api') || req.path === '/health') return next();
-    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
-  });
-}
+//   app.use((req, res, next) => {
+//     if (req.path.startsWith('/api') || req.path === '/health') return next();
+//     res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+//   });
+// }
 
 const startServer = async () => {
   try {

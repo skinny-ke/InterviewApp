@@ -98,6 +98,8 @@ export async function joinSession(req, res) {
     const userId = req.user._id;
     const clerkId = req.user.clerkId;
 
+    console.log(`Join session attempt: userId=${userId}, clerkId=${clerkId}, sessionId=${id}`);
+
     const session = await Session.findById(id);
 
     if (!session) return res.status(404).json({ message: "Session not found" });
@@ -106,7 +108,10 @@ export async function joinSession(req, res) {
       return res.status(400).json({ message: "Cannot join a completed session" });
     }
 
+    console.log(`Session host: ${session.host.toString()}, userId: ${userId.toString()}`);
+
     if (session.host.toString() === userId.toString()) {
+      console.log("Host trying to join their own session");
       return res.status(400).json({ message: "Host cannot join their own session as participant" });
     }
 

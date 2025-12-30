@@ -14,6 +14,7 @@ const app = express();
 
 // middleware
 app.use(express.json());
+console.log("Backend CLIENT_URL:", ENV.CLIENT_URL);
 app.use(cors({
   origin: [ENV.CLIENT_URL, "http://localhost:5174"],
   credentials: true

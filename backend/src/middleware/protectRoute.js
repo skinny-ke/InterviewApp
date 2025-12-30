@@ -10,12 +10,12 @@ export const protectRoute = [
       let user = await User.findOne({ clerkId });
 
       if (!user) {
-        // Create user if not exists (you might want to get user data from Clerk)
+        // Create user if not exists - basic info, can be updated later
         user = await User.create({
           clerkId,
-          name: req.auth.user?.firstName + ' ' + req.auth.user?.lastName || 'Unknown',
-          email: req.auth.user?.primaryEmailAddress?.emailAddress || '',
-          profileImage: req.auth.user?.imageUrl || '',
+          name: 'User', // Placeholder, can be updated with actual name
+          email: '',
+          profileImage: '',
         });
       }
 

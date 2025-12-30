@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { serve } from "inngest/express";
 import { clerkMiddleware } from "@clerk/express";
 
@@ -29,14 +31,15 @@ app.get("/health", (req, res) => {
   res.status(200).json({ msg: "api is up and running" });
 });
 
-// REMOVE the static serving since frontend is on Vercel
-// if (ENV.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "../frontend/dist")));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-//   app.get("/{*any}", (req, res) => {
-//     res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-//   });
-// }
+if (ENV.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+  });
+}
 
 const startServer = async () => {
   try {

@@ -18,25 +18,51 @@ export async function createSession(req, res) {
     const session = await Session.create({ problem, difficulty, host: userId, callId });
 
     // create stream video call
-    await streamClient.video.call("default", callId).getOrCreate({
-      data: {
-        created_by_id: clerkId,
-        custom: { problem, difficulty, sessionId: session._id.toString() },
-      },
-    });
+    try {
+      await streamClient.video.call("default", callId).getOrCreate({
+        data: {
+          created_by_id: clerkId,
+          custom: { problem, difficulty, sessionId: session._id.toString() },
+        },
+      });
+    } catch (streamError) {
+      console.error("Stream video call creation failed:", streamError);
+      // Clean up the database session if Stream call creation fails
+      await Session.findByIdAndDelete(session._id);
+      return res.status(500).json({
+        message: "Failed to create video room. Please try again.",
+        details: streamError.message
+      });
+    }
 
     // chat messaging
-    const channel = chatClient.channel("messaging", callId, {
-      name: `${problem} Session`,
-      created_by_id: clerkId,
-      members: [clerkId],
-    });
+    try {
+      const channel = chatClient.channel("messaging", callId, {
+        name: `${problem} Session`,
+        created_by_id: clerkId,
+        members: [clerkId],
+      });
 
-    await channel.create();
+      await channel.create();
+    } catch (chatError) {
+      console.error("Stream chat channel creation failed:", chatError);
+      // Clean up the database session and Stream call if chat creation fails
+      await Session.findByIdAndDelete(session._id);
+      try {
+        await streamClient.video.call("default", callId).delete({ hard: true });
+      } catch (cleanupError) {
+        console.error("Failed to cleanup Stream call:", cleanupError);
+      }
+      return res.status(500).json({
+        message: "Failed to create chat room. Please try again.",
+        details: chatError.message
+      });
+    }
 
     res.status(201).json({ session });
   } catch (error) {
-    console.log("Error in createSession controller:", error.message);
+    console.error("Error in createSession controller:", error);
+    console.error("Full error stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -121,12 +147,24 @@ export async function joinSession(req, res) {
     session.participant = userId;
     await session.save();
 
-    const channel = chatClient.channel("messaging", session.callId);
-    await channel.addMembers([clerkId]);
+    try {
+      const channel = chatClient.channel("messaging", session.callId);
+      await channel.addMembers([clerkId]);
+    } catch (chatError) {
+      console.error("Failed to add member to chat channel:", chatError);
+      // Revert the participant addition
+      session.participant = null;
+      await session.save();
+      return res.status(500).json({
+        message: "Failed to add user to session chat",
+        details: chatError.message
+      });
+    }
 
     res.status(200).json({ session });
   } catch (error) {
-    console.log("Error in joinSession controller:", error.message);
+    console.error("Error in joinSession controller:", error);
+    console.error("Full error stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -151,19 +189,30 @@ export async function endSession(req, res) {
     }
 
     // delete stream video call
-    const call = streamClient.video.call("default", session.callId);
-    await call.delete({ hard: true });
+    try {
+      const call = streamClient.video.call("default", session.callId);
+      await call.delete({ hard: true });
+    } catch (streamError) {
+      console.error("Failed to delete Stream video call:", streamError);
+      // Continue with chat deletion and database update even if Stream call deletion fails
+    }
 
     // delete stream chat channel
-    const channel = chatClient.channel("messaging", session.callId);
-    await channel.delete();
+    try {
+      const channel = chatClient.channel("messaging", session.callId);
+      await channel.delete();
+    } catch (chatError) {
+      console.error("Failed to delete Stream chat channel:", chatError);
+      // Continue with database update even if chat deletion fails
+    }
 
     session.status = "completed";
     await session.save();
 
     res.status(200).json({ session, message: "Session ended successfully" });
   } catch (error) {
-    console.log("Error in endSession controller:", error.message);
+    console.error("Error in endSession controller:", error);
+    console.error("Full error stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

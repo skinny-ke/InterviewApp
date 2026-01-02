@@ -7,10 +7,31 @@ const apiSecret = ENV.STREAM_API_SECRET;
 
 if (!apiKey || !apiSecret) {
   console.error("STREAM_API_KEY or STREAM_API_SECRET is missing");
+  throw new Error("Stream API credentials are not configured");
 }
 
-export const chatClient = StreamChat.getInstance(apiKey, apiSecret); // will be used chat features
-export const streamClient = new StreamClient(apiKey, apiSecret); // will be used for video calls
+// Initialize Stream clients
+let chatClientInstance = null;
+let streamClientInstance = null;
+
+try {
+  chatClientInstance = StreamChat.getInstance(apiKey, apiSecret);
+  console.log("✅ Stream Chat client initialized");
+} catch (error) {
+  console.error("❌ Failed to initialize Stream Chat client:", error);
+  throw error;
+}
+
+try {
+  streamClientInstance = new StreamClient(apiKey, apiSecret);
+  console.log("✅ Stream Video client initialized");
+} catch (error) {
+  console.error("❌ Failed to initialize Stream Video client:", error);
+  throw error;
+}
+
+export const chatClient = chatClientInstance; // will be used chat features
+export const streamClient = streamClientInstance; // will be used for video calls
 
 export const upsertStreamUser = async (userData) => {
   try {

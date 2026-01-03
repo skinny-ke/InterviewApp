@@ -15,7 +15,7 @@ let chatClientInstance = null;
 let streamClientInstance = null;
 
 try {
-  chatClientInstance = StreamChat.getInstance(apiKey, apiSecret);
+  chatClientInstance = StreamChat.getInstance(apiKey, apiSecret, { timeout: 10000 });
   console.log("✅ Stream Chat client initialized");
 } catch (error) {
   console.error("❌ Failed to initialize Stream Chat client:", error);
@@ -23,7 +23,7 @@ try {
 }
 
 try {
-  streamClientInstance = new StreamClient(apiKey, apiSecret);
+  streamClientInstance = new StreamClient(apiKey, apiSecret, { timeout: 10000 });
   console.log("✅ Stream Video client initialized");
 } catch (error) {
   console.error("❌ Failed to initialize Stream Video client:", error);

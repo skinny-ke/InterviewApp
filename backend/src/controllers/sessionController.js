@@ -7,26 +7,33 @@ export async function createSession(req, res) {
     const userId = req.user._id;
     const clerkId = req.user.clerkId;
 
+    console.log(`Create session attempt: userId=${userId}, clerkId=${clerkId}, problem=${problem}, difficulty=${difficulty}`);
+
     if (!problem || !difficulty) {
       return res.status(400).json({ message: "Problem and difficulty are required" });
     }
 
     // generate a unique call id for stream video
     const callId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    console.log(`Generated callId: ${callId}`);
 
     // create session in db
     const session = await Session.create({ problem, difficulty, host: userId, callId });
+    console.log(`Session created in DB: ${session._id}`);
 
     // create stream video call
     try {
+      console.log(`Creating Stream video call: callId=${callId}, clerkId=${clerkId}`);
       await streamClient.video.call("default", callId).getOrCreate({
         data: {
           created_by_id: clerkId,
           custom: { problem, difficulty, sessionId: session._id.toString() },
         },
       });
+      console.log(`Stream video call created successfully: ${callId}`);
     } catch (streamError) {
       console.error("Stream video call creation failed:", streamError);
+      console.error("Stream error details:", streamError.response?.data || streamError.message);
       // Clean up the database session if Stream call creation fails
       await Session.findByIdAndDelete(session._id);
       return res.status(500).json({
@@ -37,6 +44,7 @@ export async function createSession(req, res) {
 
     // chat messaging
     try {
+      console.log(`Creating Stream chat channel: callId=${callId}, clerkId=${clerkId}`);
       const channel = chatClient.channel("messaging", callId, {
         name: `${problem} Session`,
         created_by_id: clerkId,
@@ -44,8 +52,10 @@ export async function createSession(req, res) {
       });
 
       await channel.create();
+      console.log(`Stream chat channel created successfully: ${callId}`);
     } catch (chatError) {
       console.error("Stream chat channel creation failed:", chatError);
+      console.error("Chat error details:", chatError.response?.data || chatError.message);
       // Clean up the database session and Stream call if chat creation fails
       await Session.findByIdAndDelete(session._id);
       try {
@@ -59,6 +69,7 @@ export async function createSession(req, res) {
       });
     }
 
+    console.log(`Session created successfully: ${session._id}`);
     res.status(201).json({ session });
   } catch (error) {
     console.error("Error in createSession controller:", error);

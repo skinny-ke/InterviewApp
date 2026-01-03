@@ -17,8 +17,15 @@ const app = express();
 // middleware
 app.use(express.json());
 console.log("Backend CLIENT_URL:", ENV.CLIENT_URL);
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin} - Auth: ${req.headers.authorization ? 'Present' : 'None'}`);
+  next();
+});
+
 app.use(cors({
-  origin: [ENV.CLIENT_URL, "http://localhost:5174", "https://interview-app-rose.vercel.app"],
+  origin: [ENV.CLIENT_URL, "http://localhost:5173", "http://localhost:5174", "https://interview-app-rose.vercel.app"],
   credentials: true
 }));
 app.use(clerkMiddleware());

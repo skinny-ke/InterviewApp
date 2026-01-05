@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: [ENV.CLIENT_URL, "http://localhost:5173", "http://localhost:5174", "https://interview-app-rose.vercel.app"],
+  origin: [ENV.CLIENT_URL, "http://localhost:5173", "http://localhost:5174", "https://interview-app-rose.vercel.app", "https://interviewapp.pages.dev"],
   credentials: true
 }));
 app.use(clerkMiddleware());

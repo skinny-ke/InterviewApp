@@ -1,13 +1,13 @@
 import { useUser } from "@clerk/clerk-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useEndSession, useJoinSession, useSessionById } from "../hooks/useSessions";
+import { useEndSession, useJoinSession, useLeaveSession, useRemoveParticipant, useSessionById } from "../hooks/useSessions";
 import { PROBLEMS } from "../data/problems";
 import { executeCode } from "../lib/piston";
 import Navbar from "../components/Navbar";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { getDifficultyBadgeClass } from "../lib/utils";
-import { Loader2Icon, LogOutIcon, PhoneOffIcon } from "lucide-react";
+import { Loader2Icon, LogOutIcon, PhoneOffIcon, UserXIcon, XIcon } from "lucide-react";
 import CodeEditorPanel from "../components/CodeEditorPanel";
 import OutputPanel from "../components/OutputPanel";
 
@@ -21,16 +21,24 @@ function SessionPage() {
   const { user } = useUser();
   const [output, setOutput] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const joinAttempted = useRef(false);
 
   const { data: sessionData, isLoading: loadingSession, refetch } = useSessionById(id);
 
   const joinSessionMutation = useJoinSession();
   const endSessionMutation = useEndSession();
+  const leaveSessionMutation = useLeaveSession();
+  const removeParticipantMutation = useRemoveParticipant();
 
   const session = sessionData?.session;
+  // Calculate host/participant status - these will update when session data changes
   const isHost = session?.host?.clerkId === user?.id;
-  const isParticipant = session?.participant?.clerkId === user?.id;
+  // Check if user is in participants array
+  const isParticipant = session?.participants?.some((p) => p?.clerkId === user?.id) || false;
+  const participants = session?.participants || [];
+  const totalParticipants = 1 + participants.length; // host + participants
 
+  // Memoize these values to avoid recalculating unnecessarily
   const { call, channel, chatClient, isInitializingCall, streamClient } = useStreamClient(
     session,
     loadingSession,
@@ -45,18 +53,55 @@ function SessionPage() {
 
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [code, setCode] = useState(problemData?.starterCode?.[selectedLanguage] || "");
+  const [joinError, setJoinError] = useState(null);
 
-  // auto-join session if user is not already a participant and not the host
+  // Reset join attempt when session ID changes
   useEffect(() => {
-    console.log(`SessionPage: session=${!!session}, user=${!!user}, loading=${loadingSession}, isHost=${isHost}, isParticipant=${isParticipant}`);
+    joinAttempted.current = false;
+  }, [id]);
+
+  // auto-join or rejoin session if user should have access
+  useEffect(() => {
     if (!session || !user || loadingSession) return;
-    if (isHost || isParticipant) return;
+    
+    // Check if user is host or participant
+    const userIsHost = session?.host?.clerkId === user?.id;
+    const userIsParticipant = session?.participants?.some((p) => p?.clerkId === user?.id) || false;
+    
+    console.log(`SessionPage: session=${!!session}, user=${!!user}, loading=${loadingSession}, isHost=${userIsHost}, isParticipant=${userIsParticipant}`);
+    
+    // If user is host or participant, allow them to rejoin (for refresh scenario)
+    if (userIsHost || userIsParticipant) {
+      console.log("User is host or participant - allowing rejoin");
+      setJoinError(null);
+      return;
+    }
+    
+    // Only attempt to join once per session
+    if (joinAttempted.current) return;
+    joinAttempted.current = true;
 
     console.log("Attempting to auto-join session");
-    joinSessionMutation.mutate(id, { onSuccess: refetch });
-
-    // remove the joinSessionMutation, refetch from dependencies to avoid infinite loop
-  }, [session, user, loadingSession, isHost, isParticipant, id]);
+    joinSessionMutation.mutate(id, { 
+      onSuccess: () => {
+        console.log("✅ Join successful, refetching session data");
+        setJoinError(null);
+        // Reset join attempt to allow for proper detection after refetch
+        joinAttempted.current = false;
+        refetch();
+      },
+      onError: (error) => {
+        const errorMessage = error.response?.data?.message;
+        console.log("❌ Join failed:", errorMessage);
+        setJoinError(errorMessage || "Failed to join session");
+        
+        // If join fails with 409 (Session is full), show error
+        if (error.response?.status === 409) {
+          console.log("Session full (409)");
+        }
+      }
+    });
+  }, [session?._id, session?.host?.clerkId, session?.participants, user?.id, loadingSession, joinSessionMutation, id, refetch]);
 
   // redirect the "participant" when session ends
   useEffect(() => {
@@ -97,6 +142,29 @@ function SessionPage() {
     }
   };
 
+  const handleLeaveSession = () => {
+    if (confirm("Are you sure you want to leave this session?")) {
+      leaveSessionMutation.mutate(id, { 
+        onSuccess: () => {
+          navigate("/dashboard");
+        }
+      });
+    }
+  };
+
+  const handleRemoveParticipant = (participantId, participantName) => {
+    if (confirm(`Are you sure you want to remove ${participantName} from this session?`)) {
+      removeParticipantMutation.mutate(
+        { sessionId: id, participantId },
+        {
+          onSuccess: () => {
+            refetch();
+          }
+        }
+      );
+    }
+  };
+
   return (
     <div className="h-screen bg-base-100 flex flex-col">
       <Navbar />
@@ -121,7 +189,12 @@ function SessionPage() {
                         )}
                         <p className="text-base-content/60 mt-2">
                           Host: {session?.host?.name || "Loading..."} •{" "}
-                          {session?.participant ? 2 : 1}/2 participants
+                          {totalParticipants}/{session?.maxParticipants || 10} participants
+                          {participants.length > 0 && (
+                            <span className="ml-2 text-xs">
+                              ({participants.map(p => p.name).join(", ")})
+                            </span>
+                          )}
                         </p>
                       </div>
 
@@ -146,6 +219,20 @@ function SessionPage() {
                               <LogOutIcon className="w-4 h-4" />
                             )}
                             End Session
+                          </button>
+                        )}
+                        {isParticipant && !isHost && session?.status === "active" && (
+                          <button
+                            onClick={handleLeaveSession}
+                            disabled={leaveSessionMutation.isPending}
+                            className="btn btn-warning btn-sm gap-2"
+                          >
+                            {leaveSessionMutation.isPending ? (
+                              <Loader2Icon className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <XIcon className="w-4 h-4" />
+                            )}
+                            Leave Session
                           </button>
                         )}
                         {session?.status === "completed" && (
@@ -225,6 +312,77 @@ function SessionPage() {
                         </ul>
                       </div>
                     )}
+
+                    {/* Participants Section */}
+                    {session && (
+                      <div className="bg-base-100 rounded-xl shadow-sm p-5 border border-base-300">
+                        <h2 className="text-xl font-bold mb-4 text-base-content">Participants</h2>
+                        <div className="space-y-3">
+                          {/* Host */}
+                          <div className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              {session.host?.profileImage && (
+                                <img
+                                  src={session.host.profileImage}
+                                  alt={session.host.name}
+                                  className="w-10 h-10 rounded-full"
+                                />
+                              )}
+                              <div>
+                                <p className="font-semibold text-base-content">
+                                  {session.host?.name || "Host"}
+                                  <span className="ml-2 badge badge-primary badge-sm">Host</span>
+                                </p>
+                                <p className="text-xs text-base-content/60">{session.host?.email}</p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Participants */}
+                          {participants.map((participant) => (
+                            <div
+                              key={participant._id || participant.clerkId}
+                              className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+                            >
+                              <div className="flex items-center gap-3">
+                                {participant.profileImage && (
+                                  <img
+                                    src={participant.profileImage}
+                                    alt={participant.name}
+                                    className="w-10 h-10 rounded-full"
+                                  />
+                                )}
+                                <div>
+                                  <p className="font-semibold text-base-content">
+                                    {participant.name || "Participant"}
+                                  </p>
+                                  <p className="text-xs text-base-content/60">{participant.email}</p>
+                                </div>
+                              </div>
+                              {isHost && session?.status === "active" && (
+                                <button
+                                  onClick={() => handleRemoveParticipant(participant._id, participant.name)}
+                                  disabled={removeParticipantMutation.isPending}
+                                  className="btn btn-error btn-xs gap-1"
+                                  title="Remove participant"
+                                >
+                                  {removeParticipantMutation.isPending ? (
+                                    <Loader2Icon className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <UserXIcon className="w-3 h-3" />
+                                  )}
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                          
+                          {participants.length === 0 && (
+                            <p className="text-base-content/60 text-sm italic">No participants yet</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Panel>
@@ -264,6 +422,29 @@ function SessionPage() {
                   <div className="text-center">
                     <Loader2Icon className="w-12 h-12 mx-auto animate-spin text-primary mb-4" />
                     <p className="text-lg">Connecting to video call...</p>
+                  </div>
+                </div>
+              ) : joinError ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="card bg-base-100 shadow-xl max-w-md">
+                    <div className="card-body items-center text-center">
+                      <div className="w-24 h-24 bg-warning/10 rounded-full flex items-center justify-center mb-4">
+                        <PhoneOffIcon className="w-12 h-12 text-warning" />
+                      </div>
+                      <h2 className="card-title text-2xl">Cannot Join Session</h2>
+                      <p className="text-base-content/70">{joinError}</p>
+                      <p className="text-sm text-base-content/60 mt-2">
+                        {joinError === "Session is full" 
+                          ? "This session already has a participant. Sessions can only have 2 people."
+                          : ""}
+                      </p>
+                      <button 
+                        onClick={() => navigate("/dashboard")}
+                        className="btn btn-primary btn-sm mt-4"
+                      >
+                        Go to Dashboard
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : !streamClient || !call ? (

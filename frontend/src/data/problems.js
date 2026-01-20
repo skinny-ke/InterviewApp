@@ -339,6 +339,503 @@ print(maxArea([1,1]))  # Expected: 1`,
       java: "49\n1",
     },
   },
+
+  "longest-common-prefix": {
+    id: "longest-common-prefix",
+    title: "Longest Common Prefix",
+    difficulty: "Easy",
+    category: "String • Trie",
+    description: {
+      text: "Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string \"\".",
+      notes: [],
+    },
+    examples: [
+      {
+        input: 'strs = ["flower","flow","flight"]',
+        output: '"fl"',
+      },
+      {
+        input: 'strs = ["dog","racecar","car"]',
+        output: '""',
+        explanation: 'There is no common prefix among the input strings.',
+      },
+    ],
+    constraints: ["1 ≤ strs.length ≤ 200", "0 ≤ strs[i].length ≤ 200", "strs[i] consists of only lowercase English letters"],
+    starterCode: {
+      javascript: `function longestCommonPrefix(strs) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(longestCommonPrefix(["flower","flow","flight"])); // Expected: "fl"
+console.log(longestCommonPrefix(["dog","racecar","car"])); // Expected: ""`,
+      python: `def longestCommonPrefix(strs):
+    # Write your solution here
+    pass
+
+# Test cases
+print(longestCommonPrefix(["flower","flow","flight"]))  # Expected: "fl"
+print(longestCommonPrefix(["dog","racecar","car"]))  # Expected: ""`,
+      java: `class Solution {
+    public static String longestCommonPrefix(String[] strs) {
+        // Write your solution here
+        
+        return "";
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(longestCommonPrefix(new String[]{"flower","flow","flight"})); // Expected: "fl"
+        System.out.println(longestCommonPrefix(new String[]{"dog","racecar","car"})); // Expected: ""
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: 'fl\n""',
+      python: 'fl\n""',
+      java: 'fl\n""',
+    },
+  },
+
+  "best-time-to-buy-and-sell-stock": {
+    id: "best-time-to-buy-and-sell-stock",
+    title: "Best Time to Buy and Sell Stock",
+    difficulty: "Easy",
+    category: "Array • Dynamic Programming",
+    description: {
+      text: "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: "prices = [7,1,5,3,6,4]",
+        output: "5",
+        explanation: "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.",
+      },
+      {
+        input: "prices = [7,6,4,3,1]",
+        output: "0",
+        explanation: "In this case, no transactions are done and the max profit = 0.",
+      },
+    ],
+    constraints: ["1 ≤ prices.length ≤ 10⁵", "0 ≤ prices[i] ≤ 10⁴"],
+    starterCode: {
+      javascript: `function maxProfit(prices) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(maxProfit([7,1,5,3,6,4])); // Expected: 5
+console.log(maxProfit([7,6,4,3,1])); // Expected: 0`,
+      python: `def maxProfit(prices):
+    # Write your solution here
+    pass
+
+# Test cases
+print(maxProfit([7,1,5,3,6,4]))  # Expected: 5
+print(maxProfit([7,6,4,3,1]))  # Expected: 0`,
+      java: `class Solution {
+    public static int maxProfit(int[] prices) {
+        // Write your solution here
+        
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(maxProfit(new int[]{7,1,5,3,6,4})); // Expected: 5
+        System.out.println(maxProfit(new int[]{7,6,4,3,1})); // Expected: 0
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "5\n0",
+      python: "5\n0",
+      java: "5\n0",
+    },
+  },
+
+  "merge-intervals": {
+    id: "merge-intervals",
+    title: "Merge Intervals",
+    difficulty: "Medium",
+    category: "Array • Sorting",
+    description: {
+      text: "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        output: "[[1,6],[8,10],[15,18]]",
+        explanation: "Since intervals [1,3] and [2,6] overlap, merge them into [1,6].",
+      },
+      {
+        input: "intervals = [[1,4],[4,5]]",
+        output: "[[1,5]]",
+        explanation: "Intervals [1,4] and [4,5] are considered overlapping.",
+      },
+    ],
+    constraints: ["1 ≤ intervals.length ≤ 10⁴", "intervals[i].length == 2", "0 ≤ starti ≤ endi ≤ 10⁴"],
+    starterCode: {
+      javascript: `function merge(intervals) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(merge([[1,3],[2,6],[8,10],[15,18]])); // Expected: [[1,6],[8,10],[15,18]]
+console.log(merge([[1,4],[4,5]])); // Expected: [[1,5]]`,
+      python: `def merge(intervals):
+    # Write your solution here
+    pass
+
+# Test cases
+print(merge([[1,3],[2,6],[8,10],[15,18]]))  # Expected: [[1,6],[8,10],[15,18]]
+print(merge([[1,4],[4,5]]))  # Expected: [[1,5]]`,
+      java: `import java.util.*;
+
+class Solution {
+    public static int[][] merge(int[][] intervals) {
+        // Write your solution here
+        
+        return new int[0][];
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(Arrays.deepToString(merge(new int[][]{{1,3},{2,6},{8,10},{15,18}})));
+        System.out.println(Arrays.deepToString(merge(new int[][]{{1,4},{4,5}})));
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "[[1,6],[8,10],[15,18]]\n[[1,5]]",
+      python: "[[1, 6], [8, 10], [15, 18]]\n[[1, 5]]",
+      java: "[[1, 6], [8, 10], [15, 18]]\n[[1, 5]]",
+    },
+  },
+
+  "group-anagrams": {
+    id: "group-anagrams",
+    title: "Group Anagrams",
+    difficulty: "Medium",
+    category: "Array • Hash Table • String",
+    description: {
+      text: "Given an array of strings strs, group the anagrams together. You can return the answer in any order. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: 'strs = ["eat","tea","tan","ate","nat","bat"]',
+        output: '[["bat"],["nat","tan"],["ate","eat","tea"]]',
+      },
+      {
+        input: 'strs = [""]',
+        output: '[[""]]',
+      },
+      {
+        input: 'strs = ["a"]',
+        output: '[["a"]]',
+      },
+    ],
+    constraints: ["1 ≤ strs.length ≤ 10⁴", "0 ≤ strs[i].length ≤ 100", "strs[i] consists of lowercase English letters"],
+    starterCode: {
+      javascript: `function groupAnagrams(strs) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(groupAnagrams(["eat","tea","tan","ate","nat","bat"]));
+console.log(groupAnagrams([""]));
+console.log(groupAnagrams(["a"]));`,
+      python: `def groupAnagrams(strs):
+    # Write your solution here
+    pass
+
+# Test cases
+print(groupAnagrams(["eat","tea","tan","ate","nat","bat"]))
+print(groupAnagrams([""]))
+print(groupAnagrams(["a"]))`,
+      java: `import java.util.*;
+
+class Solution {
+    public static List<List<String>> groupAnagrams(String[] strs) {
+        // Write your solution here
+        
+        return new ArrayList<>();
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(groupAnagrams(new String[]{"eat","tea","tan","ate","nat","bat"}));
+        System.out.println(groupAnagrams(new String[]{""}));
+        System.out.println(groupAnagrams(new String[]{"a"}));
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: '[["bat"],["nat","tan"],["ate","eat","tea"]]\n[[""]]\n[["a"]]',
+      python: '[["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]\n[[""]]\n[["a"]]',
+      java: '[[bat], [nat, tan], [ate, eat, tea]]\n[[]]\n[[a]]',
+    },
+  },
+
+  "longest-substring-without-repeating-characters": {
+    id: "longest-substring-without-repeating-characters",
+    title: "Longest Substring Without Repeating Characters",
+    difficulty: "Medium",
+    category: "Hash Table • String • Sliding Window",
+    description: {
+      text: "Given a string s, find the length of the longest substring without repeating characters.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: 's = "abcabcbb"',
+        output: "3",
+        explanation: 'The answer is "abc", with the length of 3.',
+      },
+      {
+        input: 's = "bbbbb"',
+        output: "1",
+        explanation: 'The answer is "b", with the length of 1.',
+      },
+      {
+        input: 's = "pwwkew"',
+        output: "3",
+        explanation: 'The answer is "wke", with the length of 3.',
+      },
+    ],
+    constraints: ["0 ≤ s.length ≤ 5 * 10⁴", "s consists of English letters, digits, symbols and spaces"],
+    starterCode: {
+      javascript: `function lengthOfLongestSubstring(s) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(lengthOfLongestSubstring("abcabcbb")); // Expected: 3
+console.log(lengthOfLongestSubstring("bbbbb")); // Expected: 1
+console.log(lengthOfLongestSubstring("pwwkew")); // Expected: 3`,
+      python: `def lengthOfLongestSubstring(s):
+    # Write your solution here
+    pass
+
+# Test cases
+print(lengthOfLongestSubstring("abcabcbb"))  # Expected: 3
+print(lengthOfLongestSubstring("bbbbb"))  # Expected: 1
+print(lengthOfLongestSubstring("pwwkew"))  # Expected: 3`,
+      java: `class Solution {
+    public static int lengthOfLongestSubstring(String s) {
+        // Write your solution here
+        
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(lengthOfLongestSubstring("abcabcbb")); // Expected: 3
+        System.out.println(lengthOfLongestSubstring("bbbbb")); // Expected: 1
+        System.out.println(lengthOfLongestSubstring("pwwkew")); // Expected: 3
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "3\n1\n3",
+      python: "3\n1\n3",
+      java: "3\n1\n3",
+    },
+  },
+
+  "3sum": {
+    id: "3sum",
+    title: "3Sum",
+    difficulty: "Medium",
+    category: "Array • Two Pointers • Sorting",
+    description: {
+      text: "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. Notice that the solution set must not contain duplicate triplets.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: "nums = [-1,0,1,2,-1,-4]",
+        output: "[[-1,-1,2],[-1,0,1]]",
+      },
+      {
+        input: "nums = [0,1,1]",
+        output: "[]",
+        explanation: "The only possible triplet does not sum up to 0.",
+      },
+      {
+        input: "nums = [0,0,0]",
+        output: "[[0,0,0]]",
+      },
+    ],
+    constraints: ["3 ≤ nums.length ≤ 3000", "-10⁵ ≤ nums[i] ≤ 10⁵"],
+    starterCode: {
+      javascript: `function threeSum(nums) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(threeSum([-1,0,1,2,-1,-4])); // Expected: [[-1,-1,2],[-1,0,1]]
+console.log(threeSum([0,1,1])); // Expected: []
+console.log(threeSum([0,0,0])); // Expected: [[0,0,0]]`,
+      python: `def threeSum(nums):
+    # Write your solution here
+    pass
+
+# Test cases
+print(threeSum([-1,0,1,2,-1,-4]))  # Expected: [[-1,-1,2],[-1,0,1]]
+print(threeSum([0,1,1]))  # Expected: []
+print(threeSum([0,0,0]))  # Expected: [[0,0,0]]`,
+      java: `import java.util.*;
+
+class Solution {
+    public static List<List<Integer>> threeSum(int[] nums) {
+        // Write your solution here
+        
+        return new ArrayList<>();
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(threeSum(new int[]{-1,0,1,2,-1,-4}));
+        System.out.println(threeSum(new int[]{0,1,1}));
+        System.out.println(threeSum(new int[]{0,0,0}));
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "[[-1,-1,2],[-1,0,1]]\n[]\n[[0,0,0]]",
+      python: "[[-1, -1, 2], [-1, 0, 1]]\n[]\n[[0, 0, 0]]",
+      java: "[[-1, -1, 2], [-1, 0, 1]]\n[]\n[[0, 0, 0]]",
+    },
+  },
+
+  "product-of-array-except-self": {
+    id: "product-of-array-except-self",
+    title: "Product of Array Except Self",
+    difficulty: "Medium",
+    category: "Array • Prefix Sum",
+    description: {
+      text: "Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i]. The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer. You must write an algorithm that runs in O(n) time and without using the division operator.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: "nums = [1,2,3,4]",
+        output: "[24,12,8,6]",
+      },
+      {
+        input: "nums = [-1,1,0,-3,3]",
+        output: "[0,0,9,0,0]",
+      },
+    ],
+    constraints: ["2 ≤ nums.length ≤ 10⁵", "-30 ≤ nums[i] ≤ 30", "The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer"],
+    starterCode: {
+      javascript: `function productExceptSelf(nums) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(productExceptSelf([1,2,3,4])); // Expected: [24,12,8,6]
+console.log(productExceptSelf([-1,1,0,-3,3])); // Expected: [0,0,9,0,0]`,
+      python: `def productExceptSelf(nums):
+    # Write your solution here
+    pass
+
+# Test cases
+print(productExceptSelf([1,2,3,4]))  # Expected: [24,12,8,6]
+print(productExceptSelf([-1,1,0,-3,3]))  # Expected: [0,0,9,0,0]`,
+      java: `import java.util.*;
+
+class Solution {
+    public static int[] productExceptSelf(int[] nums) {
+        // Write your solution here
+        
+        return new int[0];
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(Arrays.toString(productExceptSelf(new int[]{1,2,3,4})));
+        System.out.println(Arrays.toString(productExceptSelf(new int[]{-1,1,0,-3,3})));
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "[24,12,8,6]\n[0,0,9,0,0]",
+      python: "[24, 12, 8, 6]\n[0, 0, 9, 0, 0]",
+      java: "[24, 12, 8, 6]\n[0, 0, 9, 0, 0]",
+    },
+  },
+
+  "word-break": {
+    id: "word-break",
+    title: "Word Break",
+    difficulty: "Medium",
+    category: "Hash Table • String • Dynamic Programming • Trie",
+    description: {
+      text: "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words. Note that the same word in the dictionary may be reused multiple times in the segmentation.",
+      notes: [],
+    },
+    examples: [
+      {
+        input: 's = "leetcode", wordDict = ["leet","code"]',
+        output: "true",
+        explanation: 'Return true because "leetcode" can be segmented as "leet code".',
+      },
+      {
+        input: 's = "applepenapple", wordDict = ["apple","pen"]',
+        output: "true",
+        explanation: 'Return true because "applepenapple" can be segmented as "apple pen apple".',
+      },
+      {
+        input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]',
+        output: "false",
+      },
+    ],
+    constraints: ["1 ≤ s.length ≤ 300", "1 ≤ wordDict.length ≤ 1000", "1 ≤ wordDict[i].length ≤ 20", "s and wordDict[i] consist of only lowercase English letters"],
+    starterCode: {
+      javascript: `function wordBreak(s, wordDict) {
+  // Write your solution here
+  
+}
+
+// Test cases
+console.log(wordBreak("leetcode", ["leet","code"])); // Expected: true
+console.log(wordBreak("applepenapple", ["apple","pen"])); // Expected: true
+console.log(wordBreak("catsandog", ["cats","dog","sand","and","cat"])); // Expected: false`,
+      python: `def wordBreak(s, wordDict):
+    # Write your solution here
+    pass
+
+# Test cases
+print(wordBreak("leetcode", ["leet","code"]))  # Expected: True
+print(wordBreak("applepenapple", ["apple","pen"]))  # Expected: True
+print(wordBreak("catsandog", ["cats","dog","sand","and","cat"]))  # Expected: False`,
+      java: `import java.util.*;
+
+class Solution {
+    public static boolean wordBreak(String s, List<String> wordDict) {
+        // Write your solution here
+        
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(wordBreak("leetcode", Arrays.asList("leet","code"))); // Expected: true
+        System.out.println(wordBreak("applepenapple", Arrays.asList("apple","pen"))); // Expected: true
+        System.out.println(wordBreak("catsandog", Arrays.asList("cats","dog","sand","and","cat"))); // Expected: false
+    }
+}`,
+    },
+    expectedOutput: {
+      javascript: "true\ntrue\nfalse",
+      python: "True\nTrue\nFalse",
+      java: "true\ntrue\nfalse",
+    },
+  },
 };
 
 export const LANGUAGE_CONFIG = {

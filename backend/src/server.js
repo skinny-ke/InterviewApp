@@ -63,11 +63,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(ENV.PORT, () =>
-      console.log("Server is running on port:", ENV.PORT)
+    const host = process.env.HOST || "0.0.0.0";
+    app.listen(ENV.PORT, host, () =>
+      console.log(`Server is running on http://${host === "0.0.0.0" ? "localhost" : host}:${ENV.PORT}`)
     );
   } catch (error) {
     console.error("💥 Error starting the server", error);
+    process.exit(1);
   }
 };
 

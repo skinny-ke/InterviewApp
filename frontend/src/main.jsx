@@ -2,9 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import { ClerkProvider } from "@clerk/clerk-react";
-import { BrowserRouter } from "react-router-dom"; // <-- fixed
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
+import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { setAxiosAuth } from "./lib/axios.js";
 
 // Import your Publishable Key
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -45,12 +46,22 @@ console.log("Debug: clerkConfig =", clerkConfig);
 
 const queryClient = new QueryClient();
 
+// Wrapper component to initialize axios auth
+function AppWrapper() {
+  const { getToken } = useAuth();
+  
+  // Set the getToken function for axios
+  setAxiosAuth(getToken);
+  
+  return <App />;
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <ClerkProvider {...clerkConfig}>
-          <App />
+          <AppWrapper />
         </ClerkProvider>
       </QueryClientProvider>
     </BrowserRouter>

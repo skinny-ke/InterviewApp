@@ -16,10 +16,13 @@ const sessionSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    participant: {
+    participants: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null,
+    }],
+    maxParticipants: {
+      type: Number,
+      default: 10,
     },
     status: {
       type: String,
@@ -34,6 +37,15 @@ const sessionSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Backward compatibility: virtual field for single participant
+sessionSchema.virtual('participant').get(function() {
+  return this.participants && this.participants.length > 0 ? this.participants[0] : null;
+});
+
+// Ensure virtuals are included in JSON output
+sessionSchema.set('toJSON', { virtuals: true });
+sessionSchema.set('toObject', { virtuals: true });
 
 const Session = mongoose.model("Session", sessionSchema);
 

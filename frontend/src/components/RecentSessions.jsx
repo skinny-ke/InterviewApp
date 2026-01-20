@@ -70,8 +70,8 @@ function RecentSessions({ sessions, isLoading }) {
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       <span>
-                        {session.participant ? "2" : "1"} participant
-                        {session.participant ? "s" : ""}
+                        {1 + (session.participants?.length || 0)}/{session.maxParticipants || 10} participant
+                        {(session.participants?.length || 0) > 0 ? "s" : ""}
                       </span>
                     </div>
                   </div>

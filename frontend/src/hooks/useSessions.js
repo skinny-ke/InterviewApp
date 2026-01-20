@@ -40,7 +40,9 @@ export const useSessionById = (id) => {
     queryKey: ["session", id],
     queryFn: () => sessionApi.getSessionById(id),
     enabled: !!id,
-    refetchInterval: 5000, // refetch every 5 seconds to detect session status changes
+    // Refetch less frequently to reduce unnecessary requests
+    refetchInterval: 5000, // Every 5 seconds instead of 2
+    staleTime: 2000, // Consider data stale after 2 seconds
   });
 
   return result;
@@ -50,8 +52,24 @@ export const useJoinSession = () => {
   const result = useMutation({
     mutationKey: ["joinSession"],
     mutationFn: sessionApi.joinSession,
-    onSuccess: () => toast.success("Joined session successfully!"),
+    onSuccess: (data) => {
+      // Only show toast if it's not a rejoin (message indicates rejoin)
+      if (!data?.message || !data.message.includes("Rejoined")) {
+        toast.success("Joined session successfully!");
+      }
+    },
     onError: (error) => toast.error(error.response?.data?.message || "Failed to join session"),
+  });
+
+  return result;
+};
+
+export const useLeaveSession = () => {
+  const result = useMutation({
+    mutationKey: ["leaveSession"],
+    mutationFn: sessionApi.leaveSession,
+    onSuccess: () => toast.success("Left session successfully!"),
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to leave session"),
   });
 
   return result;
@@ -63,6 +81,17 @@ export const useEndSession = () => {
     mutationFn: sessionApi.endSession,
     onSuccess: () => toast.success("Session ended successfully!"),
     onError: (error) => toast.error(error.response?.data?.message || "Failed to end session"),
+  });
+
+  return result;
+};
+
+export const useRemoveParticipant = () => {
+  const result = useMutation({
+    mutationKey: ["removeParticipant"],
+    mutationFn: ({ sessionId, participantId }) => sessionApi.removeParticipant(sessionId, participantId),
+    onSuccess: () => toast.success("Participant removed successfully!"),
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to remove participant"),
   });
 
   return result;

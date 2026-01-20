@@ -22,6 +22,7 @@ function SessionPage() {
   const [output, setOutput] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const joinAttempted = useRef(false);
+  const [joinedOverride, setJoinedOverride] = useState(false); // fallback when server response lacks clerkId on participant
 
   const { data: sessionData, isLoading: loadingSession, refetch } = useSessionById(id);
 
@@ -39,6 +40,8 @@ function SessionPage() {
     participantList.some((p) => p?.clerkId === user?.id) ||
     legacyParticipant?.clerkId === user?.id ||
     false;
+  // If we successfully joined during this page load but backend response lacks clerkId, keep us marked as participant
+  const isParticipantEffective = isParticipant || joinedOverride;
   const participants = participantList.length > 0 ? participantList : legacyParticipant ? [legacyParticipant] : [];
   const totalParticipants = 1 + participants.length; // host + participants
 
@@ -47,7 +50,7 @@ function SessionPage() {
     session,
     loadingSession,
     isHost,
-    isParticipant
+    isParticipantEffective
   );
 
   // find the problem data based on session problem title
@@ -65,7 +68,10 @@ function SessionPage() {
     
     // Check if user is host or participant
     const userIsHost = session?.host?.clerkId === user?.id;
-    const userIsParticipant = session?.participants?.some((p) => p?.clerkId === user?.id) || false;
+    const userIsParticipant =
+      session?.participants?.some((p) => p?.clerkId === user?.id) ||
+      session?.participant?.clerkId === user?.id ||
+      false;
     
     console.log(`SessionPage: session=${!!session}, user=${!!user}, loading=${loadingSession}, isHost=${userIsHost}, isParticipant=${userIsParticipant}`);
     
@@ -73,6 +79,7 @@ function SessionPage() {
     if (userIsHost || userIsParticipant) {
       console.log("User is host or participant - allowing rejoin");
       setJoinError(null);
+      setJoinedOverride(true); // ensure video flow proceeds even if response is missing clerkId in participants
       return;
     }
     
@@ -85,6 +92,7 @@ function SessionPage() {
       onSuccess: () => {
         console.log("✅ Join successful, refetching session data");
         setJoinError(null);
+        setJoinedOverride(true); // treat as participant for this page load
         refetch();
       },
       onError: (error) => {

@@ -31,11 +31,15 @@ function SessionPage() {
   const removeParticipantMutation = useRemoveParticipant();
 
   const session = sessionData?.session;
-  // Calculate host/participant status - these will update when session data changes
+  // Calculate host/participant status - support both new (participants) and legacy (participant) shapes
   const isHost = session?.host?.clerkId === user?.id;
-  // Check if user is in participants array
-  const isParticipant = session?.participants?.some((p) => p?.clerkId === user?.id) || false;
-  const participants = session?.participants || [];
+  const participantList = session?.participants || [];
+  const legacyParticipant = session?.participant;
+  const isParticipant =
+    participantList.some((p) => p?.clerkId === user?.id) ||
+    legacyParticipant?.clerkId === user?.id ||
+    false;
+  const participants = participantList.length > 0 ? participantList : legacyParticipant ? [legacyParticipant] : [];
   const totalParticipants = 1 + participants.length; // host + participants
 
   // Memoize these values to avoid recalculating unnecessarily
@@ -55,11 +59,6 @@ function SessionPage() {
   const [code, setCode] = useState(problemData?.starterCode?.[selectedLanguage] || "");
   const [joinError, setJoinError] = useState(null);
 
-  // Reset join attempt when session ID changes
-  useEffect(() => {
-    joinAttempted.current = false;
-  }, [id]);
-
   // auto-join or rejoin session if user should have access
   useEffect(() => {
     if (!session || !user || loadingSession) return;
@@ -77,7 +76,7 @@ function SessionPage() {
       return;
     }
     
-    // Only attempt to join once per session
+    // Only attempt to join once per session (avoid loops)
     if (joinAttempted.current) return;
     joinAttempted.current = true;
 
@@ -86,8 +85,6 @@ function SessionPage() {
       onSuccess: () => {
         console.log("✅ Join successful, refetching session data");
         setJoinError(null);
-        // Reset join attempt to allow for proper detection after refetch
-        joinAttempted.current = false;
         refetch();
       },
       onError: (error) => {
